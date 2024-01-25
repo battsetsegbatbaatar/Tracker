@@ -7,7 +7,7 @@ const app = express();
 const PORT = 8080;
 
 app.use(express.json());
-app.use(cors());
+app.use(cors("http://localhost:3000"));
 
 app.get("/", (req, res) => {
   res.send("hello world!");
@@ -18,26 +18,29 @@ app.get("/neon", async (req, res) => {
   res.send(data);
 });
 
+app.get("/signup", async (req, res) => {
+  const data = await sql`SELECT *FROM users`;
+  res.send(data);
+});
 app.post("/signup", async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-    console.log(req.body);
-    // validator hiih
-    if (!name || !password || !email) {
-      return res.status(400).send("Fields are required");
-    }
-    // bycrigt
-    const encryptedPassword = await bcrypt.hash(password, 18);
+  const { name, email, password } = req.body;
+  console.log(req.body);
+  // validator hiih
+  if (!name || !password || !email) {
+    return res.status(400).send("bogloogvi bna shvvv gsg aldaa");
+  }
+  // bycrigt
 
-    const data =
-      await sql`INSERT INTO users (name,email,password,avatarImg,createAt,updateAt)
-    VALUES (${name}, ${email}, ${encryptedPassword},"",${date},${date});
+  const encryptedPassword = await bcrypt.hash(password, 10);
+  try {
+    await sql`INSERT INTO users (name,email,password,avatarImg,createdAt,updatedAt)
+    VALUES (${name}, ${email}, ${encryptedPassword},'img',${new Date()},${new Date()});
     `;
-    res.send(data);
   } catch (error) {
     console.error("Error during signup:", error);
     res.status(500).send("Internal Server Error");
   }
+  res.status(201).send({ message: "Successfully created" });
 });
 
 app.post("/login", async (req, res) => {
@@ -70,6 +73,13 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log("Application running at http://localhost:" + PORT);
-});
+const startServer = async () => {
+  try {
+    await app.listen(PORT);
+    console.log("Application running at http://localhost:" + PORT);
+  } catch (error) {
+    console.error("Error starting the server:", error);
+  }
+};
+
+startServer();
