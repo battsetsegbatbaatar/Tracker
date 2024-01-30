@@ -63,11 +63,10 @@ app.post("/signin", async (req, res) => {
   const { email, password } = req.body;
   console.log(req.body);
 
-  if (!email || !password) {
-    return res.status(400).send("Email and password are required");
-  }
-
   try {
+    if (!email || !password) {
+      return res.status(400).send("Email and password are required");
+    }
     const userData = await sql`SELECT * FROM users WHERE email = ${email}`;
     console.log(userData);
 
@@ -91,7 +90,7 @@ app.post("/signin", async (req, res) => {
 
     // Handle successful login
     // res.status(201).send("Login successful", token);
-    res.send(userData);
+    // res.send(userData);
     res.status(201).json({ message: "success login" });
   } catch (error) {
     console.error("Error during login:", error);
