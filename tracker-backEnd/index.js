@@ -58,6 +58,10 @@ app.post("/signup", async (req, res) => {
     res.status(500).send("Internal Server Error" + " bolkun bn");
   }
 });
+app.get("/records", async (req, res) => {
+  const data = await sql`SELECT * FROM categories`;
+  res.send(data);
+});
 
 app.post("/signin", async (req, res) => {
   const { email, password } = req.body;
