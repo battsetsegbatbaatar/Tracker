@@ -24,6 +24,7 @@ app.get("/neon", async (req, res) => {
   const data = await sql`SELECT * FROM playing_with_neon`;
   res.send(data);
 });
+// ll
 
 app.get("/signup", async (req, res) => {
   const data = await sql`SELECT *FROM users`;
