@@ -52,9 +52,12 @@ app.post("/signup", async (req, res) => {
     // res.send(data);
     res.status(201).send({ message: "Successfully created" });
   } catch (error) {
-    console.error("Error during signup:", error);
     res.status(500).send("Internal Server Error" + " bolkun bn");
   }
+});
+app.get("/signin", async (req, res) => {
+  const data = await sql`SELECT * FROM users`;
+  res.send(data);
 });
 
 app.post("/signin", async (req, res) => {
@@ -86,39 +89,27 @@ app.post("/signin", async (req, res) => {
     const token = jwt.sign({ userId: userData[0].id }, secretKey, {
       expiresIn: "10h",
     });
-
-    // Handle successful login
-    // res.status(201).send("Login successful", token);
-    // res.send(userData);
     res.status(201).json({ message: "success login", token });
   } catch (error) {
-    console.error("Error during login:", error);
     res.status(500).send("user sign in failed");
   }
 });
 
 app.get("/records", verifyToken, async (req, res) => {
+  console.log(req.user, "user");
   const data = await sql`SELECT * FROM categories`;
-  res.send(data);
 });
 
 app.post("/records", verifyToken, async (req, res) => {
-  if (!req.user) {
-    return res.status(401).json({ message: "user not exist" });
-  }
-  console.log("first");
   const { name, creteat, total, type } = req.body;
-  console.log(res.body);
+
   try {
-    if (!name || !creteat || !total || !type) {
-      return res.status(400).send("All fields are required");
-    }
     await sql`INSERT INTO categories (name, total, createdat,updateat,categoryimage,type)
     VALUES (${name},${total},${creteat},${new Date()},'https://img.freepik.com/premium-photo/road-sea_902338-23470.jpg',${type})`;
-    res.status(201).send({ message: "Successfully created" });
+    res.send("Success created");
   } catch (error) {
     console.error("Error during signup:", error);
-    res.status(500).send("Internal Server Error" + " bolkun bn");
+    return res.status(500).send("Internal Server Error" + " bolkun bn");
   }
 });
 
