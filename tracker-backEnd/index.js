@@ -71,6 +71,8 @@ app.post("/signin", async (req, res) => {
     }
     const userData = await sql`SELECT * FROM users WHERE email = ${email}`;
     console.log(userData);
+    const id = userData[0].id;
+    console.log(id);
 
     if (!userData || !userData.length) {
       return res.status(401).send("Invalid email or password");
@@ -83,35 +85,65 @@ app.post("/signin", async (req, res) => {
     const passwordMatch = await bcrypt.compare(password, hashedPassword);
 
     if (!passwordMatch) {
-      return res.status(401).send("Invalid email or password");
+      return res.status(401).send("Invalid email or password", { id, token });
     }
     // generate token
     const token = jwt.sign({ userId: userData[0].id }, secretKey, {
       expiresIn: "10h",
     });
-    res.status(201).json({ message: "success login", token });
+
+    res.status(201).json({ message: "success login", token, id });
   } catch (error) {
     res.status(500).send("user sign in failed");
   }
 });
 
-app.get("/records", verifyToken, async (req, res) => {
-  console.log(req.user, "user");
-  const data = await sql`SELECT * FROM categories`;
+app.get("/records", async (req, res) => {
+  const data = await sql`SELECT * FROM records`;
+  res.send(data);
 });
 
-app.post("/records", verifyToken, async (req, res) => {
-  const { name, creteat, total, type } = req.body;
+app.post("/records", async (req, res) => {
+  const { name, createdat, total, type, userid } = req.body;
+  console.log("body", req.body);
 
   try {
-    await sql`INSERT INTO categories (name, total, createdat,updateat,categoryimage,type)
-    VALUES (${name},${total},${creteat},${new Date()},'https://img.freepik.com/premium-photo/road-sea_902338-23470.jpg',${type})`;
-    res.send("Success created");
+    await sql` INSERT INTO records (name, userid, total, createdAt, updateAt, categoryImage, type)
+    VALUES (
+        ${name},
+        ${userid},
+        ${total},
+        ${createdat},
+        ${new Date()},
+        'https://img.freepik.com/premium-photo/road-sea_902338-23470.jpg',
+        ${type}
+    );`;
+    res.status(201).send({ message: "Successfully created" });
   } catch (error) {
-    console.error("Error during signup:", error);
-    return res.status(500).send("Internal Server Error" + " bolkun bn");
+    console.log("error", error);
+    return res.status(400).send("Internal Server Error" + " bolkun bn");
   }
 });
 
+app.get("/categories", async (req, res) => {
+  const data = await sql`SELECT * FROM categories`;
+  res.send(data);
+});
+
+app.post("/categories", async (req, res) => {
+  const { name } = req.body;
+  console.log("body", req.body);
+
+  try {
+    await sql` INSERT INTO categories (name)
+    VALUES (
+        ${name}
+    );`;
+    res.status(201).send({ message: "Successfully created" });
+  } catch (error) {
+    console.log("error", error);
+    return res.status(400).send("Internal Server Error" + " bolkun bn");
+  }
+});
 app.listen(PORT);
 console.log("Application running at http://localhost:" + PORT);
