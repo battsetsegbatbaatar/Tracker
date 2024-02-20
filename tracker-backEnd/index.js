@@ -133,7 +133,7 @@ app.get("/categories", async (req, res) => {
 app.post("/categories", async (req, res) => {
   const { name } = req.body;
   console.log("body", req.body);
-
+  console.log(first);
   try {
     await sql` INSERT INTO categories (name)
     VALUES (
