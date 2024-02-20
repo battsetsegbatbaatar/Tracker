@@ -106,7 +106,7 @@ app.get("/records", async (req, res) => {
 app.post("/records", async (req, res) => {
   const { name, createdat, total, type, userid } = req.body;
   console.log("body", req.body);
-
+  console.log(first);
   try {
     await sql` INSERT INTO records (name, userid, total, createdAt, updateAt, categoryImage, type)
     VALUES (
