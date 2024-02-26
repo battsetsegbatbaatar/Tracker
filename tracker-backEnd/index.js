@@ -8,6 +8,7 @@ const { verifyToken } = require("./middleware/auth");
 const app = express();
 const PORT = 8080;
 const secretKey = process.env.SECRET_KEY;
+console.log(first);
 
 app.use(express.json());
 app.use(
